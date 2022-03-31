@@ -1,24 +1,49 @@
+/*
+ * Passagem de parâmetros para a thread. 
+ * Um inteiro pode ser recebido disfarçado de apontador.
+ */
 #include <pthread.h>
 #include <stdio.h>
-#include <string.h>
+#include <stdlib.h>
+#include <unistd.h>
 
-/* function to be run as a thread always must have the same signature:
-   it has one void* parameter and returns void */
-void *threadfunction(void *arg)
-{
-  printf("Hello, World!\n"); /*printf() is specified as thread-safe as of C11*/
-  return 0;
+#define N_THR 10
+
+void* avalia_vida(void *v) {
+  long int id = (long int) v;
+  printf("Thread %ld\n", id);  
+  return NULL; 
+} 
+
+void recebe_matriz(int ** matriz,int n, int m) {
+    for (int i = 0 ; i < n ; i++){
+        for (int j = 0; j < m; j++)
+        {
+            scanf("%d", &(matriz[i][j]));
+        }
+        
+    }
+
 }
 
-int main(void)
-{
-  pthread_t thread;
-  int createerror = pthread_create(&thread, NULL, threadfunction, NULL);
-  /*creates a new thread with default attributes and NULL passed as the argument to the start routine*/
-  if (!createerror) /*check whether the thread creation was successful*/
-    {
-      pthread_join(thread, NULL); /*wait until the created thread terminates*/
-      return 0;
-    }
-  return 1;
+int main() {
+  pthread_t thr[N_THR];
+  int **matriz;
+  matriz = malloc(N_THR * sizeof(int*));
+  for (int i = 0; i < N_THR; i++)
+  {
+    matriz[i] = malloc(N_THR * sizeof(int));
+  }
+  
+
+  recebe_matriz(matriz, 10,10);
+  long int i;
+
+  for (i = 0; i < N_THR; i++)
+    pthread_create(&thr[i], NULL, avalia_vida, (void*) i);
+
+  for (i = 0; i < N_THR; i++) 
+    pthread_join(thr[i], NULL);
+
+  return 0;
 }
