@@ -35,6 +35,8 @@
 *.i*86
 *.x86_64
 *.hex
+project1/test
+project1/t
 
 # Debug files
 *.dSYM/
