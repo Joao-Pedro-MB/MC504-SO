@@ -20,60 +20,59 @@ int **matriz_i; //matriz impar
 int **matriz_v; //matriz velha
 int **matriz_n; //matriz nova
 
+// aqui utilizamos um void como um long int, no entanto recomendamos
+// que verifique o tamanho do pontiro void em seu ambiente para utilizar
+// o tamanho correto de inteiro no casting
+
 void* avalia_vida(void *v) {
   long int id = (long int) v;
-  int vida, viz;
+  int vida, vizinho;
   //printf("Thread %d\n", id);
   for (int j = 0; j < N_COL; ++j)
   {
     // Determina condições da célula
     vida = matriz_v[id][j];
-    viz = 0;
+    vizinho = 0;
     for (int k = -1; k < 2; ++k) {
       if (matriz_v[modl(id-1)][modc(j+k)] == 1) {
-        viz++;
+        vizinho++;
       }
       if (matriz_v[modl(id+1)][modc(j+k)] == 1) {
-        viz++;
+        vizinho++;
       }
     }
     if (matriz_v[id][modc(j-1)] == 1) {
-      viz++;
+      vizinho++;
     }
     if (matriz_v[id][modc(j+1)] == 1) {
-      viz++;
+      vizinho++;
     }
     
     // Aplica Regra 23/3
-    if (vida == 0 && viz == 3) {
+    if (vida == 0 && vizinho == 3) {
       matriz_n[id][j] = 1;
-    } else if (vida == 1 && (viz < 2 || viz > 3)) {
+    } else if (vida == 1 && (vizinho < 2 || vizinho > 3)) {
       matriz_n[id][j] = 0;
     } else {
       matriz_n[id][j] = matriz_v[id][j];
     }
-    //printf("i=%ld; j=%d; vida=%d; viz=%d; veredito=%d\n", id, j, vida, viz, matriz_n[id][j]);
+    //printf("i=%ld; j=%d; vida=%d; vizinho=%d; veredito=%d\n", id, j, vida, vizinho, matriz_n[id][j]);
 
   }
   return NULL; 
 } 
 
 void recebe_matriz(int ** matriz,int n, int m) {
-    for (int i = 0 ; i < n ; i++){
-        for (int j = 0; j < m; j++)
-        {
-            scanf("%d", &(matriz[i][j]));
-        }
-        
+  for (int i = 0 ; i < n ; i++){
+    for (int j = 0; j < m; j++) {
+      scanf("%d", &(matriz[i][j]));
     }
-
+  }
 }
 
 void imprime_matriz(int ** matriz, int n, int m, char c0, char c1) {
-  for (int i = 0; i < n; ++i)
-  {
-    for (int j = 0; j < m; ++j)
-    {
+  for (int i = 0; i < n; ++i) {
+    for (int j = 0; j < m; ++j) {
       printf("%c ", (matriz[i][j]==0) ? c0 : c1 );
     }
     printf("\n");
@@ -104,11 +103,8 @@ int main() {
   int dia;
   
 
-  
   // Executa Jogo da Vida
-  for (dia = 0; dia < N_DIA; ++dia)
-  {
-
+  for (dia = 0; dia < N_DIA; ++dia) {
 
     // Determina quem sao as matrizes velha e nova
     if (dia % 2 == 0) {
