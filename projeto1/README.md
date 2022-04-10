@@ -1,7 +1,7 @@
 # Project 1 - Simple Life Game emulator
 
 ## Introdução
-Esse primeiro projeto tem como objetivo uma primeira introdução ao processamento multi-theread em C com a aultilização da biblioteca POSIX thread.
+Esse primeiro projeto tem como objetivo uma primeira introdução ao processamento multi-thread em C com a aultilização da biblioteca POSIX thread.
 
 ## Background
 Como motivador da implementação buscamos relizar uma implementação simples do [jogo da vida](https://pt.wikipedia.org/wiki/Jogo_da_vida) proposto por John Conway.
