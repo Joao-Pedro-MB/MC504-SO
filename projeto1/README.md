@@ -25,3 +25,6 @@ Recebe o id da thread e a funcao avalia_vida para que possa ser resolvida indepe
 
 ## pthread_join
 Combina todas as threads criadas para a criacao de uma matriz atualizada
+
+# Video
+![explanation](https://drive.google.com/file/d/1WePjLv1pqwplN58hir4nxVfK5NUlvHhc/view?usp=sharing)
