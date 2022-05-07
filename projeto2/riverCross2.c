@@ -128,8 +128,16 @@ int main() {
     sem_init(&serfQueue, 1 , 0);
 
     for (i; i < 10 ; i++) {
-        if(ptherad_create(&th[i], NULL, &boardHacker, NULL) != 0) {
+        int r = rand() % 6;
+
+        if (r > 3){
+            if(ptherad_create(&th[i], NULL, &boardHacker, NULL) != 0) {
             perror("a criação da thread %d, falhou\n", i);
+        }
+        } esle {
+            if(ptherad_create(&th[i], NULL, &boardSerf, NULL) != 0) {
+                perror("a criação da thread %d, falhou\n", i);
+            }
         }
     }
 
