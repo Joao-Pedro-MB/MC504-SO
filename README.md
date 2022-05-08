@@ -10,3 +10,4 @@ Ths repository is a series of pocket size projects to pratice the concepts os th
 
 ## Projects
 [project01](/projeto1)
+[project02](/projeto2)
