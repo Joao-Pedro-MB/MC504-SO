@@ -1,4 +1,4 @@
-# Project 1 - Simple Life Game emulator
+# Project 2 - River Cross problem (Little Book of Semaphores)
 
 ## Introducao
 Nesse segundo projeto buscamos implementar uma solução animada para o problema do rio proposto no livro "Little Book of Semaphores" escrito por Allen B. Downey e colaboradores.
@@ -17,31 +17,37 @@ Para ralizarmos a animação recebemos a entrada na forma de .... Em seguida cal
 # Funções
 
 ## boardSerf
-Recebe um ponteiro de void, que na realidade se trata de um inteiro longo disfarcado. Sua funcao eh iterar por cada "celula" de uma determinada linha atualizando o valor da celula atual baseada em seus vizinhos
+Embarca um desenvolvedor e checa se a fila possui condições necessárias para zarpar o barco.
 
 ## boardHacker
-Recebe um ponteiro de ponteiro de inteiro, um inteiro para colunas e um inteiro para linhas. Em seguida utiliza dois lacos aninhados para receber o valor de cada celula da matriz
+Embarca um hacker e checa se a fila possui condições necessárias para zarpar o barco.
 
 ## embarca
-Recebe um ponteiro de ponteiro de inteiro, um inteiro para colunas, um inteiro para linhas e dois caracteres. Em seguida utiliza dois lacos aninhados para imprimir o valor de cada celula da matriz na saida padrao
+Cria a animação de embarque e efetiva o embarque do indivíduo
 
 ## rema
-Recebe o id da thread e a funcao avalia_vida para que possa ser resolvida independentemente
+Inicia a animação do barco partindo e efetiva a saída do barco e seus passageiros
 
 ## pthread_join
 Combina todas as threads criadas para a criacao de uma matriz atualizada
 
 ## pthread_create
+Cria uma thread nova para a execução de código
 
 ## pthread_barrier_init
+Inicia uma barreira de threads com um valor específico de threads para liberação
 
 ## pthread_barrier_wait
+Espera até que uma determinada barreira tenha o numero de threads necessário para continuar
 
 ## pthread_barrier_destroy
+Destroi o barreira e limpa o espaço alocado para ela em memória
 
 ## sem_init
+Inicia um semáfaro com um número específico
 
 ## sem_wait
+Espera até que um dado semáfaro seja liberado
 
 
 # Video
