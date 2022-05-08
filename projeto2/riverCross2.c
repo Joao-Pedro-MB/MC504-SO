@@ -11,12 +11,12 @@ pthread_barrier_t barrier;
 sem_t mutex, hackerQueue, serfQueue;
 int hackers = 0, serfs = 0;
 
-void* embarca(char *valor) {
-    printf("um %s embarcou\n", valor);
+void* embarca(char *valor, long int num) {
+    printf("- %s %ld embarcou\n", valor, num+1);
 }
 
 void* rema() {
-    printf("o boarco zarpou\n\n\n");
+    printf("! o barco zarpou !\n\n\n");
 }
 
 void* boardHacker(void* args) {
@@ -43,8 +43,8 @@ void* boardHacker(void* args) {
         sem_post(&hackerQueue);
         sem_post(&hackerQueue);
 
-        sem_post(&serfsQueue);
-        sem_post(&serfsQueue);
+        sem_post(&serfQueue);
+        sem_post(&serfQueue);
 
         serfs -= 2;
         hackers = 0;
@@ -60,11 +60,11 @@ void* boardHacker(void* args) {
     sem_wait(&hackerQueue);
 
     // entra no barco e espera mais 3 threads entrarem também
-    embarca("hacker");
-    ptherad_barrier_wait(&barrier);
+    embarca("hacker", args);
+    pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
-        remaBarco();
+        rema();
         sem_post(&mutex);
     }
 }
@@ -88,7 +88,7 @@ void* boardSerf(void* args) {
         isCaptain = 1;
 
     // checa se temos 2 hackers e 2 serfs e libera seus lugares
-    } else if (serfs ==2 && hacker >= 2) {
+    } else if (serfs ==2 && hackers >= 2) {
         
         sem_post(&serfQueue);
         sem_post(&serfQueue);
@@ -96,7 +96,7 @@ void* boardSerf(void* args) {
         sem_post(&hackerQueue);
         sem_post(&hackerQueue);
 
-        hacker -= 2;
+        hackers -= 2;
         serfs = 0;
 
         isCaptain = 1;
@@ -107,11 +107,11 @@ void* boardSerf(void* args) {
     }
 
     // entra na fila de serfs para esperar o barco
-    sem_wait(&hackerQueue);
+    sem_wait(&serfQueue);
 
     // entra no barco e espera mais 3 threads entrarem também
-    embarca("serf");
-    ptherad_barrier_wait(&barrier);
+    embarca("serf", args);
+    pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
         rema();
@@ -120,30 +120,38 @@ void* boardSerf(void* args) {
 }
 
 int main() {
-    pthread_t th[10];
+    int N_THREADS=20;
+    pthread_t th[N_THREADS];
     int i = 0;
+    long int num_serf=0, num_hack=0;
     pthread_barrier_init(&barrier, NULL, 4);
     sem_init(&mutex, 1 , 1);
     sem_init(&hackerQueue, 1 , 0);
     sem_init(&serfQueue, 1 , 0);
 
-    for (i; i < 10 ; i++) {
+    for (i; i < N_THREADS ; i++) {
         int r = rand() % 6;
 
         if (r > 3){
-            if(ptherad_create(&th[i], NULL, &boardHacker, NULL) != 0) {
-            perror("a criação da thread %d, falhou\n", i);
-        }
-        } esle {
-            if(ptherad_create(&th[i], NULL, &boardSerf, NULL) != 0) {
-                perror("a criação da thread %d, falhou\n", i);
+            if(pthread_create(&th[i], NULL, &boardHacker, num_hack) != 0) {
+            printf("a criação da thread %d, falhou\n", i);
+        } else {
+            num_hack++;
+            printf("+ Pthread %ld hacker criada\n", num_hack);
             }
+        } else {
+            if(pthread_create(&th[i], NULL, &boardSerf, num_serf) != 0) {
+                printf("a criação da thread %d, falhou\n", i);
+            } else {
+                num_serf++;
+                printf("+ Pthread %ld serf criada\n", num_serf);
+                }
         }
     }
 
-    for (i; i < 10 ; i++) {
-        if(ptherad_join(&th[i], NULL) != 0) {
-            perror("a criação da thread %d, falhou\n", i);
+    for (i = 0; i < N_THREADS ; i++) {
+        if(pthread_join(th[i], NULL) != 0) {
+            printf("a criação da thread %d, falhou\n", i);
         }
     }
 
