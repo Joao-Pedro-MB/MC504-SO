@@ -14,6 +14,8 @@ O problema é enunciado da seguinte forma:
 ## Funcionamento
 Para ralizarmos a animação recebemos a entrada na forma de .... Em seguida calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamoes a solução também imprimimos o estado atualizado da animação ASCII na tela.
 
+Durante a execução do código percebemos que podem acontecer furos nas filas de threads para números grandes de threads. No entanto, devido a natureza do problema não consideramos que este seja um problema devido às threads serem executadas uma única vez e a thread que foi passada não demorar mais do que 3 iterações para ser atendida em simulações para até 200 threads.
+
 # Funções
 
 ## boardSerf
