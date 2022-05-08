@@ -7,7 +7,7 @@ Nesse segundo projeto buscamos implementar uma solução animada para o problema
 
 O problema é enunciado da seguinte forma:
 
-  EM Redmond, Washington, existe um barco que é usado tanto por hackers quanto desenvolvedores de código para cruzar um rio local. O barco comporta exatamente 4 pessoas e não zarpará com mais ou menos pessoas que o estipulado. Para garantir a segurança dos passageiros, não é permitido embarcarem 1 hacker com 3 desenvolvedores e vice-versa, qualquer outra combinação é segura.
+  Em Redmond, Washington, existe um barco que é usado tanto por hackers quanto desenvolvedores de código para cruzar um rio local. O barco comporta exatamente 4 pessoas e não zarpará com mais ou menos pessoas que o estipulado. Para garantir a segurança dos passageiros, não é permitido embarcarem 1 hacker com 3 desenvolvedores e vice-versa, qualquer outra combinação é segura.
 
   Para cada thread que embarcar deve ser invocado uma função embarca(). Deve-se garantir que todas as threads chamem embarca() antes que as threads do próximo barco a invoquem. E a última thread que embarcar será o capitão e terá que zarpar o barco.
 
