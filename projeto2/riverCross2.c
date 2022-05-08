@@ -5,22 +5,30 @@
 #include <unistd.h>
 #include <time.h>
 
-//pode ignorara isso aqui eu so to tentando deixar o codigo mais bonito
+typedef long int li;
 
+// Barreira da travessoa
 pthread_barrier_t barrier;
+
+// Mutexes de controle e filas
 sem_t mutex, hackerQueue, serfQueue;
+
+// Contadores de hackers e serfs (controlados por mutex)
 int hackers = 0, serfs = 0;
 
+// Tripulantes embarcam
 void* embarca(char *valor, long int num) {
     printf("- %s %ld embarcou\n", valor, num+1);
 }
 
-void* rema() {
-    printf("! o barco zarpou !\n\n\n");
+// Capitao rema
+void* rema(long int num) {
+    printf("! Capitão %ld zarpou o barco !\n\n\n", num+1);
 }
 
+// Embarque do hacker
 void* boardHacker(void* args) {
-    // espera o semafaro compartilhado ser liberado
+    // espera o semaforo compartilhado ser liberado
     sem_wait(&mutex);
     int isCaptain = 0;
 
@@ -60,15 +68,16 @@ void* boardHacker(void* args) {
     sem_wait(&hackerQueue);
 
     // entra no barco e espera mais 3 threads entrarem também
-    embarca("hacker", args);
+    embarca("hacker", (li) args);
     pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
-        rema();
+        rema((li) args);
         sem_post(&mutex);
     }
 }
 
+// Embarque do serf
 void* boardSerf(void* args) {
     // espera o semafaro compartilhado ser liberado
     sem_wait(&mutex);
@@ -110,11 +119,11 @@ void* boardSerf(void* args) {
     sem_wait(&serfQueue);
 
     // entra no barco e espera mais 3 threads entrarem também
-    embarca("serf", args);
+    embarca("serf", (li) args);
     pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
-        rema();
+        rema((li) args);
         sem_post(&mutex);
     }
 }
@@ -128,31 +137,40 @@ int main() {
     sem_init(&mutex, 1 , 1);
     sem_init(&hackerQueue, 1 , 0);
     sem_init(&serfQueue, 1 , 0);
+    time_t t;
+    srand((unsigned) time(&t));
+
 
     for (i; i < N_THREADS ; i++) {
+        
         int r = rand() % 6;
 
-        if (r > 3){
-            if(pthread_create(&th[i], NULL, &boardHacker, num_hack) != 0) {
+        if (r > 2){
+            if(pthread_create(&th[i], NULL, &boardHacker, (void*) num_hack) != 0) {
             printf("a criação da thread %d, falhou\n", i);
         } else {
             num_hack++;
-            printf("+ Pthread %ld hacker criada\n", num_hack);
+            printf("+ Pthread hacker %ld criada\n", num_hack);
             }
         } else {
-            if(pthread_create(&th[i], NULL, &boardSerf, num_serf) != 0) {
+            if(pthread_create(&th[i], NULL, &boardSerf, (void*) num_serf) != 0) {
                 printf("a criação da thread %d, falhou\n", i);
             } else {
                 num_serf++;
-                printf("+ Pthread %ld serf criada\n", num_serf);
+                printf("+ Pthread serf %ld criada\n", num_serf);
                 }
         }
     }
 
-    for (i = 0; i < N_THREADS ; i++) {
-        if(pthread_join(th[i], NULL) != 0) {
-            printf("a criação da thread %d, falhou\n", i);
+    if (num_serf % 2 == 0) {
+        for (i = 0; i < N_THREADS ; i++) {
+            if(pthread_join(th[i], NULL) != 0) {
+                printf("a criação da thread %d, falhou\n", i);
+            }
         }
+    } else {
+        sleep(2);
+        printf("Não foi possível transportar todos os hackers/serfs.\n");
     }
 
 
