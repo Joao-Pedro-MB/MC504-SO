@@ -53,4 +53,4 @@ Espera até que um dado semáfaro seja liberado
 
 
 # Video
-[explanation](https://drive.google.com/file/d/1WePjLv1pqwplN58hir4nxVfK5NUlvHhc/view?usp=sharing)
+[explanation](https://drive.google.com/file/d/1khmQkeKn88xF2qFOhDHHqn5T6SLNrZqF/view?usp=sharing)
