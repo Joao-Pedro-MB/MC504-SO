@@ -4,27 +4,99 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <time.h>
+#include <string.h>
 
 typedef long int li;
+int const N_THREADS=20;
+
+typedef struct queue {
+    int size;
+    int ini;
+    int *q;
+} queue;
+
+void q_init(queue *q) {
+    q->ini = 0;
+    q->size = 0;
+    q->q = (int*) malloc(N_THREADS * sizeof(int));
+}
+
+int q_at(queue *q, int idx) {
+    return q->q[(q->ini+idx)%N_THREADS];
+}
+
+void q_print(queue *q) {
+    printf("FILA: ");
+    for (int i = 0; i < q->size; ++i)
+    {
+        printf("%d  ", q_at(q,i));
+    }
+    printf("\n");
+}
+
+void q_push(queue *q, int num) {
+    q->q[(q->ini+q->size)%N_THREADS] = num;
+    q->size = q->size+1;
+    q_print(q);
+}
+
+void q_pop(queue *q) {
+    q->ini = (q->ini+1)%N_THREADS;
+    q->size = q->size-1;
+    q_print(q);
+}
+
+int* q_getq(queue *q) {
+    return q->q;
+}
+
+int q_getsize(queue *q) {
+    return q->size;
+}
+
+void q_clear(queue *q) {
+    q->ini=0;
+    q->size=0;
+}
+
+queue q_hackers, q_serfs, q_barco;
+
 
 // Barreira da travessoa
 pthread_barrier_t barrier;
 
 // Mutexes de controle e filas
-sem_t mutex, hackerQueue, serfQueue;
+sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueEdit;
 
 // Contadores de hackers e serfs (controlados por mutex)
 int hackers = 0, serfs = 0;
 
+char barco_tipo[4];
+int barco_nums[4];
+
 // Tripulantes embarcam
 void* embarca(char *valor, long int num) {
     printf("- %s %ld embarcou\n", valor, num+1);
+
+
+    sem_wait(&barcoQueueEdit);
+    int idx = q_getsize(&q_barco);
+    barco_nums[idx] = num+1;
+    barco_tipo[idx] = (strcmp(valor,"serf")==0)? 'S':'H';
+    q_push(&q_barco, (li)(num + 1));
+    sem_post(&barcoQueueEdit);
 }
 
 // Capitao rema
 void* rema(long int num) {
     printf("! Capitão %ld zarpou o barco !\n\n\n", num+1);
+    for (int i = 0; i < 4; ++i)
+    {
+        printf("%c%02d ", barco_tipo[i], barco_nums[i]);
+    } printf("\n");
+    q_clear(&q_barco);
 }
+
 
 // Embarque do hacker
 void* boardHacker(void* args) {
@@ -36,6 +108,7 @@ void* boardHacker(void* args) {
 
     // checa se ja temos 4 hackers e libera seus lugares
     if (hackers == 4) {
+
         sem_post(&hackerQueue);
         sem_post(&hackerQueue);
         sem_post(&hackerQueue);
@@ -61,14 +134,22 @@ void* boardHacker(void* args) {
 
     // caso contrario o barco n pode partir ainda, apenas libera o controle
     } else {
+
         sem_post(&mutex);
     }
 
     // entra na fila de hackers para esperar o barco
+    
+
     sem_wait(&hackerQueue);
 
     // entra no barco e espera mais 3 threads entrarem também
     embarca("hacker", (li) args);
+
+    /*sem_wait(&hackerQueueEdit);
+    q_pop(&q_hackers);
+    sem_post(&hackerQueueEdit);*/
+
     pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
@@ -87,6 +168,7 @@ void* boardSerf(void* args) {
 
     // checa se ja temos 4 serfs e libera seus lugares
     if (serfs == 4) {
+
         sem_post(&serfQueue);
         sem_post(&serfQueue);
         sem_post(&serfQueue);
@@ -112,6 +194,7 @@ void* boardSerf(void* args) {
 
     // caso contrario o barco n pode partir ainda, apenas libera o controle
     } else {
+
         sem_post(&mutex);
     }
 
@@ -120,6 +203,11 @@ void* boardSerf(void* args) {
 
     // entra no barco e espera mais 3 threads entrarem também
     embarca("serf", (li) args);
+
+    /*sem_wait(&hackerQueueEdit);
+    q_pop(&q_serfs);
+    sem_post(&serfQueueEdit);*/
+
     pthread_barrier_wait(&barrier);
 
     if (isCaptain == 1) {
@@ -129,7 +217,6 @@ void* boardSerf(void* args) {
 }
 
 int main() {
-    int N_THREADS=20;
     pthread_t th[N_THREADS];
     int i = 0;
     long int num_serf=0, num_hack=0;
@@ -137,8 +224,15 @@ int main() {
     sem_init(&mutex, 1 , 1);
     sem_init(&hackerQueue, 1 , 0);
     sem_init(&serfQueue, 1 , 0);
+    sem_init(&hackerQueueEdit, 1 , 1);
+    sem_init(&serfQueueEdit, 1 , 1);
+    sem_init(&barcoQueueEdit, 1 , 1);
     time_t t;
     srand((unsigned) time(&t));
+
+    q_init(&q_serfs);
+    q_init(&q_hackers);
+    q_init(&q_barco);
 
 
     for (i; i < N_THREADS ; i++) {
@@ -149,6 +243,9 @@ int main() {
             if(pthread_create(&th[i], NULL, &boardHacker, (void*) num_hack) != 0) {
             printf("a criação da thread %d, falhou\n", i);
         } else {
+            sem_wait(&hackerQueueEdit);
+            q_push(&q_hackers, (li)(num_hack + 1));
+            sem_post(&hackerQueueEdit);
             num_hack++;
             printf("+ Pthread hacker %ld criada\n", num_hack);
             }
@@ -156,6 +253,9 @@ int main() {
             if(pthread_create(&th[i], NULL, &boardSerf, (void*) num_serf) != 0) {
                 printf("a criação da thread %d, falhou\n", i);
             } else {
+                sem_wait(&serfQueueEdit);
+                q_push(&q_serfs, (li)(num_serf + 1));
+                sem_post(&serfQueueEdit);
                 num_serf++;
                 printf("+ Pthread serf %ld criada\n", num_serf);
                 }
