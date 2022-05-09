@@ -41,14 +41,14 @@ void q_print(queue *q) {
 void q_push(queue *q, int num) {
     q->q[(q->ini+q->size)%N_THREADS] = num;
     q->size = q->size+1;
-    q_print(q);
+    //q_print(q);
 }
 
 // Remove num from beginning of queue
 void q_pop(queue *q) {
     q->ini = (q->ini+1)%N_THREADS;
     q->size = q->size-1;
-    q_print(q);
+    //q_print(q);
 }
 
 // Getters
@@ -77,14 +77,14 @@ int barco_nums[4];
 pthread_barrier_t barrier;
 
 // Mutexes de controle e filas
-sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueEdit;
+sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueEdit, sem_animation;
 
 // Contadores de hackers e serfs (controlados por mutex)
 int hackers = 0, serfs = 0;
 
 // Tripulantes embarcam
 void* embarca(char *valor, long int num) {
-    printf("- %s %ld embarcou\n", valor, num+1);
+    //printf("- %s %ld embarcou\n", valor, num+1);
 
 
     sem_wait(&barcoQueueEdit);
@@ -92,20 +92,32 @@ void* embarca(char *valor, long int num) {
     barco_nums[idx] = num+1;
     barco_tipo[idx] = (strcmp(valor,"serf")==0)? 'S':'H';
     q_push(&q_barco, (li)(num + 1));
-    animation();
+    sem_wait(&sem_animation);
+    animation(0);
+    sem_post(&sem_animation);
     sem_post(&barcoQueueEdit);
 }
 
 // Capitao rema
 void* rema(long int num) {
-    printf("! Capitão %ld zarpou o barco !\n\n\n", num+1);
-    for (int i = 0; i < 4; ++i)
+    //printf("! Capitão %ld zarpou o barco !\n\n\n", num+1);
+    /*for (int i = 0; i < 4; ++i)
     {
         printf("%c%02d ", barco_tipo[i], barco_nums[i]);
-    } printf("\n");
-    animation();
+    } printf("\n");*/
+    sem_wait(&sem_animation);
+    animation(1);
+    sem_post(&sem_animation);
     //Reinicializa array
+    sem_wait(&barcoQueueEdit);
     q_clear(&q_barco);
+    for (int i = 0; i < 4; ++i)
+    {
+        barco_nums[i] = 0;
+        barco_tipo[i] = 'E';
+    }
+    
+    sem_post(&barcoQueueEdit);
 }
 
 
@@ -221,72 +233,170 @@ void* boardSerf(void* args) {
 
 void dev2str(char type, int num, char *str) {
 
-    strcat(str, type);
+    char* num_ptr = malloc(sizeof(char));
+    
+
+    char* z_ptr = malloc(sizeof(char));
+    *z_ptr = '0';
+
+    char* space_ptr = malloc(sizeof(char));
+    *space_ptr = ' ';
+
+    char* h_ptr = malloc(sizeof(char));
+    *h_ptr = 'H';
+
+    char* s_ptr = malloc(sizeof(char));
+    *s_ptr = 'S';
+
+    char* e_ptr = malloc(sizeof(char));
+    *e_ptr = 'E';
+
+    char *type_ptr;
+
+    if (type == *h_ptr) {
+        type_ptr = h_ptr;
+    } else if (type == *s_ptr) {
+        type_ptr = s_ptr;
+    } else {
+        type_ptr = e_ptr;
+    }
+
+    strcat(str, type_ptr);
     if (num < 10) {
-        strcat(str, '0');
+        strcat(str, z_ptr);
+        *num_ptr = (char) num + '0';
+        strcat(str, num_ptr);
+     } else {
+        *num_ptr = (char) num/10 + '0';
+        strcat(str, num_ptr);
+        *num_ptr = (char) num%10 + '0';
+        strcat(str, num_ptr);
      }
 
-    strcat(str, (char *) num);
-    strcat(str, ' ');
+    
+    strcat(str, space_ptr);
 }
 
 void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, char * serfs_str) {
+
+    char* num_ptr = malloc(sizeof(char));
+    
+
+    char* z_ptr = malloc(sizeof(char));
+    *z_ptr = '0';
+
+    char* space_ptr = malloc(sizeof(char));
+    *space_ptr = ' ';
+
+    char* h_ptr = malloc(sizeof(char));
+    *h_ptr = 'H';
+
+    char* s_ptr = malloc(sizeof(char));
+    *s_ptr = 'S';
+
+    char* ln_ptr = malloc(sizeof(char));
+    *ln_ptr = '\n';
+
+
     for (int i = 0 ; i < hackers ; i++) {
+     
+
+
+        strcat(hackers_str, h_ptr);
+        
         if (hackers_ints[i] < 10) {
-            hackers_str += 'H' + '0' +  (char) hackers_ints[i] + ' ';
+            
+            strcat(hackers_str, z_ptr);
+            *num_ptr = (char) hackers_ints[i] + '0';
+            strcat(hackers_str, num_ptr);
+            
         } else {
-            hackers_str += 'H' + (char) hackers_ints[i] + ' ';
+            *num_ptr = (char) hackers_ints[i]/10 + '0';
+            strcat(hackers_str, num_ptr);
+
+            *num_ptr = (char) hackers_ints[i]%10 + '0';
+            strcat(hackers_str, num_ptr);
         }
+
+        
+        strcat(hackers_str, space_ptr);
     }
 
     for (int i = 0 ; i < serfs ; i++) {
+        strcat(serfs_str, s_ptr);
+        
         if (serfs_ints[i] < 10) {
-            serfs_str += 'S' + '0' +  (char) serfs_ints[i] + ' ';
+            
+            strcat(serfs_str, z_ptr);
+            *num_ptr = (char) serfs_ints[i] + '0';
+            strcat(serfs_str, num_ptr);
+            
         } else {
-            serfs_str += 'S' + (char) serfs_ints[i] + ' ';
+            *num_ptr = (char) serfs_ints[i]/10 + '0';
+            strcat(serfs_str, num_ptr);
+
+            *num_ptr = (char) serfs_ints[i]%10 + '0';
+            strcat(serfs_str, num_ptr);
         }
+
+        
+        strcat(serfs_str, space_ptr);
     }
 
-    hackers_str += '\n';
-    serfs_str += '\n';
+    strcat(hackers_str, ln_ptr);
+    strcat(serfs_str, ln_ptr);
+
 
 }
 
-void show_status (int progress, char* passenger_1, char* passenger_2, char* passenger_3, char* passenger_4,int* hackers_ints,int* serfs_ints) {
+void show_status (int progress, char* passenger_1, char* passenger_2, char* passenger_3, char* passenger_4,int* hackers_ints,int* serfs_ints, int cross) {
 
-    char  hackers_str[50], serfs_str[50];
+    char *hackers_str = (char*) malloc(50*sizeof(char)); 
+    char *serfs_str  =  (char*) malloc(50*sizeof(char)); 
     makeWaitingLine(hackers_ints, serfs_ints, hackers_str, serfs_str);
 
     system("clear");
     printf("\n");
     printf("\n");
     printf("Hackers\n");
-    printf(hackers_str);
+    printf("%s", hackers_str);
     printf("\n");
-    printf("Devs\n");
-    printf(serfs_str);
+    printf("Serfs\n");
+    printf("%s", serfs_str);
 
-    for(int x = 0; x < progress; x++) {   
-        printf("=");
+    if (cross) {
+        for(int x = 0; x < progress; x++) {   
+            printf("=");
+        }
+        
     }
-        printf("\\_%s_%s_´T`_%s_%s_/\r", passenger_1, passenger_2, passenger_3, passenger_4);
-        system("sleep 1");   
+    
+    printf("\\_%s_%s_´T`_%s_%s_/\r", passenger_1, passenger_2, passenger_3, passenger_4);
+    system("sleep 1");   
     
 }
 
-void animation() {
+void animation(int cross) {
     int times = 10;
 
-    char p1[10], p2[10], p3[10], p4[10];
-    
+    char *p1 = malloc(10 * sizeof(char));
+    char *p2 = malloc(10 * sizeof(char));
+    char *p3 = malloc(10 * sizeof(char));
+    char *p4 = malloc(10 * sizeof(char));
+
     dev2str(barco_tipo[0], barco_nums[0], p1);
     dev2str(barco_tipo[1], barco_nums[1], p2);
     dev2str(barco_tipo[2], barco_nums[2], p3);
     dev2str(barco_tipo[3], barco_nums[3], p4);
     
-    for(int i = 0; i <= times; i++) {
-       show_status(i * 8, p1, p2, p3, p4, q_getq(&q_hackers), q_getq(&q_serfs));
+    if (cross) {
+        for(int i = 0; i <= times; i++) {
+            show_status(i * 8, p1, p2, p3, p4, q_getq(&q_hackers), q_getq(&q_serfs), cross);
+        }
+    } else {
+        show_status(0, p1, p2, p3, p4, q_getq(&q_hackers), q_getq(&q_serfs), cross);
     }
+    
 }
 
 int main() {
@@ -300,12 +410,19 @@ int main() {
     sem_init(&hackerQueueEdit, 1 , 1);
     sem_init(&serfQueueEdit, 1 , 1);
     sem_init(&barcoQueueEdit, 1 , 1);
+    sem_init(&sem_animation, 1 , 1);
     time_t t;
     srand((unsigned) time(&t));
 
     q_init(&q_serfs);
     q_init(&q_hackers);
     q_init(&q_barco);
+
+    for (int i = 0; i < 4; ++i)
+    {
+        barco_nums[i] = 0;
+        barco_tipo[i] = 'E';
+    }
 
 
     for (i; i < N_THREADS ; i++) {
@@ -314,25 +431,29 @@ int main() {
 
         if (r > 2){
             if(pthread_create(&th[i], NULL, &boardHacker, (void*) num_hack) != 0) {
-            printf("a criação da thread %d, falhou\n", i);
+            //printf("a criação da thread %d, falhou\n", i);
         } else {
             sem_wait(&hackerQueueEdit);
             q_push(&q_hackers, (li)(num_hack + 1));
             sem_post(&hackerQueueEdit);
             num_hack++;
-            animation();
-            printf("+ Pthread hacker %ld criada\n", num_hack);
+            sem_wait(&sem_animation);
+            animation(0);
+            sem_post(&sem_animation);
+            //printf("+ Pthread hacker %ld criada\n", num_hack);
             }
         } else {
             if(pthread_create(&th[i], NULL, &boardSerf, (void*) num_serf) != 0) {
-                printf("a criação da thread %d, falhou\n", i);
+                //printf("a criação da thread %d, falhou\n", i);
             } else {
                 sem_wait(&serfQueueEdit);
                 q_push(&q_serfs, (li)(num_serf + 1));
                 sem_post(&serfQueueEdit);
                 num_serf++;
-                animation();
-                printf("+ Pthread serf %ld criada\n", num_serf);
+                sem_wait(&sem_animation);
+                animation(0);
+                sem_post(&sem_animation);
+                //printf("+ Pthread serf %ld criada\n", num_serf);
                 }
         }
     }
@@ -340,7 +461,7 @@ int main() {
     if (num_serf % 2 == 0) {
         for (i = 0; i < N_THREADS ; i++) {
             if(pthread_join(th[i], NULL) != 0) {
-                printf("a criação da thread %d, falhou\n", i);
+                //printf("a criação da thread %d, falhou\n", i);
             }
         }
     } else {
