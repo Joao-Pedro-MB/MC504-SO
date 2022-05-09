@@ -9,12 +9,14 @@
 typedef long int li;
 int const N_THREADS=20;
 
+// Queue struct and functions
 typedef struct queue {
     int size;
     int ini;
     int *q;
 } queue;
 
+// Queue Constructor
 void q_init(queue *q) {
     q->ini = 0;
     q->size = 0;
@@ -34,18 +36,21 @@ void q_print(queue *q) {
     printf("\n");
 }
 
+// Add num to end of queue
 void q_push(queue *q, int num) {
     q->q[(q->ini+q->size)%N_THREADS] = num;
     q->size = q->size+1;
     q_print(q);
 }
 
+// Remove num from beginning of queue
 void q_pop(queue *q) {
     q->ini = (q->ini+1)%N_THREADS;
     q->size = q->size-1;
     q_print(q);
 }
 
+// Getters
 int* q_getq(queue *q) {
     return q->q;
 }
@@ -54,13 +59,18 @@ int q_getsize(queue *q) {
     return q->size;
 }
 
+// Clear queue
 void q_clear(queue *q) {
     q->ini=0;
     q->size=0;
 }
 
+// Queues for animation
 queue q_hackers, q_serfs, q_barco;
 
+// Arrays for animation
+char barco_tipo[4];
+int barco_nums[4];
 
 // Barreira da travessoa
 pthread_barrier_t barrier;
@@ -70,9 +80,6 @@ sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueE
 
 // Contadores de hackers e serfs (controlados por mutex)
 int hackers = 0, serfs = 0;
-
-char barco_tipo[4];
-int barco_nums[4];
 
 // Tripulantes embarcam
 void* embarca(char *valor, long int num) {
@@ -94,6 +101,7 @@ void* rema(long int num) {
     {
         printf("%c%02d ", barco_tipo[i], barco_nums[i]);
     } printf("\n");
+    //Reinicializa array
     q_clear(&q_barco);
 }
 
@@ -145,10 +153,6 @@ void* boardHacker(void* args) {
 
     // entra no barco e espera mais 3 threads entrarem também
     embarca("hacker", (li) args);
-
-    /*sem_wait(&hackerQueueEdit);
-    q_pop(&q_hackers);
-    sem_post(&hackerQueueEdit);*/
 
     pthread_barrier_wait(&barrier);
 
@@ -203,10 +207,6 @@ void* boardSerf(void* args) {
 
     // entra no barco e espera mais 3 threads entrarem também
     embarca("serf", (li) args);
-
-    /*sem_wait(&hackerQueueEdit);
-    q_pop(&q_serfs);
-    sem_post(&serfQueueEdit);*/
 
     pthread_barrier_wait(&barrier);
 
