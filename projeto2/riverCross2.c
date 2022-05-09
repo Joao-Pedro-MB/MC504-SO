@@ -220,11 +220,14 @@ void* boardSerf(void* args) {
 }
 
 void dev2str(char type, int num, char *str) {
+
+    strcat(str, type);
     if (num < 10) {
-            str += type + '0' +  (char) num + ' ' + '\0';
-        } else {
-            str += type + (char) num + ' ' + '\0';
-        }
+        strcat(str, '0');
+     }
+
+    strcat(str, (char *) num);
+    strcat(str, ' ');
 }
 
 void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, char * serfs_str) {
