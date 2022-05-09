@@ -1,6 +1,6 @@
 # Project 2 - River Cross problem (Little Book of Semaphores)
 
-## Introducao
+## Introdução
 Nesse segundo projeto, buscamos implementar uma solução animada para o problema da travessia do rio proposto no livro "Little Book of Semaphores" escrito por Allen B. Downey e colaboradores.
 
 ## Background
@@ -12,9 +12,9 @@ O problema é enunciado da seguinte forma:
   Para cada thread que embarcar, a função embarca() deve ser invocada. Deve-se garantir que todas as threads chamem embarca() antes que as threads do próximo barco a invoquem. E uma das threads que embarcar será o capitão e terá que zarpar o barco.
 
 ## Funcionamento
-Para ralizarmos a animação, recebemos a entrada na forma de .... Em seguida calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamos a solução, também imprimimos o estado atualizado da animação ASCII na tela.
+Para realizarmos a animação, recebemos a entrada na forma de .... Em seguida, calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamos a solução, também imprimimos o estado atualizado da animação ASCII na tela.
 
-Durante a execução do código percebemos que podem acontecer furos nas filas de threads para números grandes de threads, o que prejudica a justiça da implementação. No entanto, devido a natureza do problema não consideramos que isso comprometa a solução, uma vez que as threads são executadas uma única vez, e a thread que foi passada não deve demorar mais do que 3 iterações (travessias de barco) para ser atendida em simulações para até 200 threads.
+Durante a execução do código, percebemos que podem acontecer furos nas filas de threads para números grandes de threads, o que prejudica a justiça da implementação. No entanto, devido a natureza do problema não consideramos que isso comprometa a solução, uma vez que as threads são executadas uma única vez, e a thread que foi passada não deve demorar mais do que 3 iterações (travessias de barco) para ser atendida em simulações para até 200 threads.
 
 # Funções
 
