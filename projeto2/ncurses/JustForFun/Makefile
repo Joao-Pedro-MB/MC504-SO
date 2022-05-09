@@ -10,6 +10,7 @@ EXE_DIR=../demo/exe
 
 EXES = \
 	${EXE_DIR}/hanoi \
+	${EXE_DIR}/teste \
 	${EXE_DIR}/life\
 	${EXE_DIR}/magic \
 	${EXE_DIR}/queens \
