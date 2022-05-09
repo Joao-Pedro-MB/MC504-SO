@@ -8,6 +8,7 @@
 
 typedef long int li;
 int const N_THREADS=20;
+void animation();
 
 // Queue struct and functions
 typedef struct queue {
@@ -91,6 +92,7 @@ void* embarca(char *valor, long int num) {
     barco_nums[idx] = num+1;
     barco_tipo[idx] = (strcmp(valor,"serf")==0)? 'S':'H';
     q_push(&q_barco, (li)(num + 1));
+    animation();
     sem_post(&barcoQueueEdit);
 }
 
@@ -101,6 +103,7 @@ void* rema(long int num) {
     {
         printf("%c%02d ", barco_tipo[i], barco_nums[i]);
     } printf("\n");
+    animation();
     //Reinicializa array
     q_clear(&q_barco);
 }
@@ -216,6 +219,73 @@ void* boardSerf(void* args) {
     }
 }
 
+void dev2str(char type, int num, char *str) {
+    if (num < 10) {
+            str += type + '0' +  (char) num + ' ' + '\0';
+        } else {
+            str += type + (char) num + ' ' + '\0';
+        }
+}
+
+void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, char * serfs_str) {
+    for (int i = 0 ; i < hackers ; i++) {
+        if (hackers_ints[i] < 10) {
+            hackers_str += 'H' + '0' +  (char) hackers_ints[i] + ' ';
+        } else {
+            hackers_str += 'H' + (char) hackers_ints[i] + ' ';
+        }
+    }
+
+    for (int i = 0 ; i < serfs ; i++) {
+        if (serfs_ints[i] < 10) {
+            serfs_str += 'S' + '0' +  (char) serfs_ints[i] + ' ';
+        } else {
+            serfs_str += 'S' + (char) serfs_ints[i] + ' ';
+        }
+    }
+
+    hackers_str += '\n';
+    serfs_str += '\n';
+
+}
+
+void show_status (int progress, char* passenger_1, char* passenger_2, char* passenger_3, char* passenger_4,int* hackers_ints,int* serfs_ints) {
+
+    char  hackers_str[50], serfs_str[50];
+    makeWaitingLine(hackers_ints, serfs_ints, hackers_str, serfs_str);
+
+    system("clear");
+    printf("\n");
+    printf("\n");
+    printf("Hackers\n");
+    printf(hackers_str);
+    printf("\n");
+    printf("Devs\n");
+    printf(serfs_str);
+
+    for(int x = 0; x < progress; x++) {   
+        printf("=");
+    }
+        printf("\\_%s_%s_´T`_%s_%s_/\r", passenger_1, passenger_2, passenger_3, passenger_4);
+        system("sleep 1");   
+    
+}
+
+void animation() {
+    int times = 10;
+
+    char p1[10], p2[10], p3[10], p4[10];
+    
+    dev2str(barco_tipo[0], barco_nums[0], p1);
+    dev2str(barco_tipo[1], barco_nums[1], p2);
+    dev2str(barco_tipo[2], barco_nums[2], p3);
+    dev2str(barco_tipo[3], barco_nums[3], p4);
+    
+    for(int i = 0; i <= times; i++) {
+       show_status(i * 8, p1, p2, p3, p4, q_getq(&q_hackers), q_getq(&q_serfs));
+    }
+}
+
 int main() {
     pthread_t th[N_THREADS];
     int i = 0;
@@ -247,6 +317,7 @@ int main() {
             q_push(&q_hackers, (li)(num_hack + 1));
             sem_post(&hackerQueueEdit);
             num_hack++;
+            animation();
             printf("+ Pthread hacker %ld criada\n", num_hack);
             }
         } else {
@@ -257,6 +328,7 @@ int main() {
                 q_push(&q_serfs, (li)(num_serf + 1));
                 sem_post(&serfQueueEdit);
                 num_serf++;
+                animation();
                 printf("+ Pthread serf %ld criada\n", num_serf);
                 }
         }
