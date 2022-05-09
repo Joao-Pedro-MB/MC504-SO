@@ -1,7 +1,7 @@
 # Project 2 - River Cross problem (Little Book of Semaphores)
 
 ## Introducao
-Nesse segundo projeto buscamos implementar uma solução animada para o problema do rio proposto no livro "Little Book of Semaphores" escrito por Allen B. Downey e colaboradores.
+Nesse segundo projeto, buscamos implementar uma solução animada para o problema da travessia do rio proposto no livro "Little Book of Semaphores" escrito por Allen B. Downey e colaboradores.
 
 ## Background
 
@@ -9,12 +9,12 @@ O problema é enunciado da seguinte forma:
 
   Em Redmond, Washington, existe um barco que é usado tanto por hackers quanto desenvolvedores de código para cruzar um rio local. O barco comporta exatamente 4 pessoas e não zarpará com mais ou menos pessoas que o estipulado. Para garantir a segurança dos passageiros, não é permitido embarcarem 1 hacker com 3 desenvolvedores e vice-versa, qualquer outra combinação é segura.
 
-  Para cada thread que embarcar deve ser invocado uma função embarca(). Deve-se garantir que todas as threads chamem embarca() antes que as threads do próximo barco a invoquem. E a última thread que embarcar será o capitão e terá que zarpar o barco.
+  Para cada thread que embarcar, a função embarca() deve ser invocada. Deve-se garantir que todas as threads chamem embarca() antes que as threads do próximo barco a invoquem. E uma das threads que embarcar será o capitão e terá que zarpar o barco.
 
 ## Funcionamento
-Para ralizarmos a animação recebemos a entrada na forma de .... Em seguida calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamoes a solução também imprimimos o estado atualizado da animação ASCII na tela.
+Para ralizarmos a animação, recebemos a entrada na forma de .... Em seguida calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamos a solução, também imprimimos o estado atualizado da animação ASCII na tela.
 
-Durante a execução do código percebemos que podem acontecer furos nas filas de threads para números grandes de threads. No entanto, devido a natureza do problema não consideramos que este seja um problema devido às threads serem executadas uma única vez e a thread que foi passada não demorar mais do que 3 iterações para ser atendida em simulações para até 200 threads.
+Durante a execução do código percebemos que podem acontecer furos nas filas de threads para números grandes de threads, o que prejudica a justiça da implementação. No entanto, devido a natureza do problema não consideramos que isso comprometa a solução, uma vez que as threads são executadas uma única vez, e a thread que foi passada não deve demorar mais do que 3 iterações (travessias de barco) para ser atendida em simulações para até 200 threads.
 
 # Funções
 
