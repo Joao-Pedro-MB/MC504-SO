@@ -10,12 +10,18 @@ typedef long int li;
 int const N_THREADS=20;
 void animation();
 
+sem_t sem_animation;
+//int cont_op = 0;
+
 // Queue struct and functions
 typedef struct queue {
     int size;
     int ini;
     int *q;
 } queue;
+
+// Queues for animation
+queue q_hackers, q_serfs, q_barco;
 
 // Queue Constructor
 void q_init(queue *q) {
@@ -28,14 +34,16 @@ int q_at(queue *q, int idx) {
     return q->q[(q->ini+idx)%N_THREADS];
 }
 
-void q_print(queue *q) {
-    printf("FILA: ");
+/*void q_print(queue *q) {
+    sem_wait(&sem_animation);
+    printf("FILA %s (%d): ", (q == &q_hackers)? "HACKER":"SERF", ++cont_op);
     for (int i = 0; i < q->size; ++i)
     {
         printf("%d  ", q_at(q,i));
     }
     printf("\n");
-}
+    sem_post(&sem_animation);
+}*/
 
 // Add num to end of queue
 void q_push(queue *q, int num) {
@@ -49,6 +57,13 @@ void q_pop(queue *q) {
     q->ini = (q->ini+1)%N_THREADS;
     q->size = q->size-1;
     //q_print(q);
+}
+
+void q_remove(queue *q, int num) {
+    int i = 0;
+    while(q_at(q, i) != num) i++;
+    q->q[(q->ini+i)%N_THREADS] = q->q[q->ini];
+    q_pop(q);
 }
 
 // Getters
@@ -66,9 +81,6 @@ void q_clear(queue *q) {
     q->size=0;
 }
 
-// Queues for animation
-queue q_hackers, q_serfs, q_barco;
-
 // Arrays for animation
 char barco_tipo[4];
 int barco_nums[4];
@@ -77,14 +89,27 @@ int barco_nums[4];
 pthread_barrier_t barrier;
 
 // Mutexes de controle e filas
-sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueEdit, sem_animation;
+sem_t mutex, hackerQueue, serfQueue, hackerQueueEdit, serfQueueEdit, barcoQueueEdit;
 
 // Contadores de hackers e serfs (controlados por mutex)
 int hackers = 0, serfs = 0;
 
+int hackers_cross=0, serfs_cross=0;
+
 // Tripulantes embarcam
 void* embarca(char *valor, long int num) {
     //printf("- %s %ld embarcou\n", valor, num+1);
+
+    /*if (strcmp(valor,"serf")==0) {
+        sem_wait(&serfQueueEdit);
+        q_pop(&q_serfs);
+        sem_post(&serfQueueEdit);
+    } else {
+        sem_wait(&hackerQueueEdit);
+        q_pop(&q_hackers);
+        sem_post(&hackerQueueEdit);
+    }*/
+    
 
 
     sem_wait(&barcoQueueEdit);
@@ -138,7 +163,8 @@ void* boardHacker(void* args) {
         sem_post(&hackerQueue);
 
 
-        hackers = 0;
+        hackers -= 4;
+        hackers_cross += 4;
         isCaptain = 1;
 
     // checa se temos 2 hackers e 2 serfs e libera seus lugares
@@ -151,7 +177,9 @@ void* boardHacker(void* args) {
         sem_post(&serfQueue);
 
         serfs -= 2;
-        hackers = 0;
+        hackers -= 2;
+        serfs_cross += 2;
+        hackers_cross += 2;
 
         isCaptain = 1;
 
@@ -194,7 +222,8 @@ void* boardSerf(void* args) {
         sem_post(&serfQueue);
 
 
-        serfs = 0;
+        serfs -= 4;
+        serfs_cross += 4;
         isCaptain = 1;
 
     // checa se temos 2 hackers e 2 serfs e libera seus lugares
@@ -207,7 +236,9 @@ void* boardSerf(void* args) {
         sem_post(&hackerQueue);
 
         hackers -= 2;
-        serfs = 0;
+        serfs -= 2;
+        hackers_cross += 2;
+        serfs_cross += 2;
 
         isCaptain = 1;
 
@@ -298,7 +329,8 @@ void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, c
     *ln_ptr = '\n';
 
 
-    for (int i = 0 ; i < hackers ; i++) {
+    sem_wait(&hackerQueueEdit);
+    for (int i = hackers_cross ; i < q_getsize(&q_hackers) ; i++) {
      
 
 
@@ -321,8 +353,10 @@ void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, c
         
         strcat(hackers_str, space_ptr);
     }
+    sem_post(&hackerQueueEdit);
 
-    for (int i = 0 ; i < serfs ; i++) {
+    sem_wait(&serfQueueEdit);
+    for (int i = serfs_cross ; i < q_getsize(&q_serfs) ; i++) {
         strcat(serfs_str, s_ptr);
         
         if (serfs_ints[i] < 10) {
@@ -342,6 +376,7 @@ void makeWaitingLine(int * hackers_ints, int * serfs_ints, char * hackers_str, c
         
         strcat(serfs_str, space_ptr);
     }
+    sem_post(&serfQueueEdit);
 
     strcat(hackers_str, ln_ptr);
     strcat(serfs_str, ln_ptr);
@@ -372,7 +407,12 @@ void show_status (int progress, char* passenger_1, char* passenger_2, char* pass
     }
     
     printf("\\_%s_%s_´T`_%s_%s_/\r", passenger_1, passenger_2, passenger_3, passenger_4);
-    system("sleep 1");   
+    if (cross) {
+        system("sleep 0.2");
+    } else {
+        system("sleep 1"); 
+    }
+      
     
 }
 
@@ -465,7 +505,7 @@ int main() {
             }
         }
     } else {
-        sleep(2);
+        sleep(20);
         printf("Não foi possível transportar todos os hackers/serfs.\n");
     }
 
