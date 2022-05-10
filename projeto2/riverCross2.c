@@ -98,6 +98,7 @@ void* embarca(char *valor, long int num) {
     barco_tipo[idx] = (strcmp(valor,"serf")==0)? 'S':'H';
     q_push(&q_barco, (li)(num + 1));
     
+    // anima subida
     animation(0);
     sem_post(&sem_animation);
     sem_post(&barcoQueueEdit);
@@ -122,6 +123,7 @@ void* rema(long int num) {
     sem_post(&serfQueueEdit);
     sem_post(&hackerQueueEdit);
 
+    // anima travessia
     sem_wait(&sem_animation);
     animation(1);
     sem_post(&sem_animation);
