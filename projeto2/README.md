@@ -14,7 +14,9 @@ O problema é enunciado da seguinte forma:
 ## Funcionamento
 Para realizarmos a animação, recebemos a entrada na forma de .... Em seguida, calculamos as saídas com o auxílio de 3 semáforos e uma barreira, implementados pela biblioteca POSIX threads em C. Por fim, conforme executamos a solução, também imprimimos o estado atualizado da animação ASCII na tela.
 
-Durante a execução do código, percebemos que podem acontecer furos nas filas de threads para números grandes de threads, o que prejudica a justiça da implementação. No entanto, devido a natureza do problema não consideramos que isso comprometa a solução, uma vez que as threads são executadas uma única vez, e a thread que foi passada não deve demorar mais do que 3 iterações (travessias de barco) para ser atendida em simulações para até 200 threads.
+Durante a execução do código, percebemos que podem acontecer furos nas filas de threads para números grandes de threads, o que prejudica a justiça da implementação. No entanto, devido a natureza do problema não consideramos que isso comprometa a solução, uma vez que as threads são executadas uma única vez, e a thread que foi passada não deve demorar mais do que 3 iterações (travessias de barco) para ser atendida em simulações para até 100 threads. Esse valor é o limite para a garantia que a nossa animação funciona pois tratamos apenas hackers e devs/serfs com dois digitos no indentificador. Para execuções de até 200 threads ainda podemos gerar animações condizentes, mas para 201 ou superior nosso sistema de animação não terá suporte.
+
+Valre resaltar que utilizamos semaforos com o posfixo ```_edit``` e um semafaro ```animation``` utilizados unicamnete para garantir que a animacao entre threads serao executadas com a devida sincronia.
 
 # Funções
 
@@ -53,4 +55,5 @@ Espera até que um dado semáfaro seja liberado
 
 
 # Video
-[explanation](https://drive.google.com/drive/folders/1vAKv2uwD-xqfCRlNaKOrllYlq93U5fj1?usp=sharing)
+[explicação](https://drive.google.com/drive/folders/1vAKv2uwD-xqfCRlNaKOrllYlq93U5fj1?usp=sharing)
+[execução](https://drive.google.com/drive/folders/1QJMKKDDKMIjIMfZvqBZbji-djB2jtlVg?usp=sharing)
