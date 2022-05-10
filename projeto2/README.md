@@ -55,5 +55,6 @@ Espera até que um dado semáfaro seja liberado
 
 
 # Video
-[explicação](https://drive.google.com/drive/folders/1vAKv2uwD-xqfCRlNaKOrllYlq93U5fj1?usp=sharing)
-[execução](https://drive.google.com/drive/folders/1QJMKKDDKMIjIMfZvqBZbji-djB2jtlVg?usp=sharing)
+- [explicação](https://drive.google.com/drive/folders/1vAKv2uwD-xqfCRlNaKOrllYlq93U5fj1?usp=sharing)
+
+- [execução](https://drive.google.com/drive/folders/1QJMKKDDKMIjIMfZvqBZbji-djB2jtlVg?usp=sharing)
