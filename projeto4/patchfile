@@ -1,0 +1,302 @@
+diff --git a/drivers/staging/greybus/arche-platform.c b/drivers/staging/greybus/arche-platform.c
+index eebf0deb39f50..a41243b4d3a1a 100644
+--- a/drivers/staging/greybus/arche-platform.c
++++ b/drivers/staging/greybus/arche-platform.c
+@@ -77,9 +77,8 @@ static void arche_platform_set_state(struct arche_platform_drvdata *arche_pdata,
+ }
+ 
+ /* Requires arche_pdata->wake_lock is held by calling context */
+-static void arche_platform_set_wake_detect_state(
+-				struct arche_platform_drvdata *arche_pdata,
+-				enum svc_wakedetect_state state)
++static void arche_platform_set_wake_detect_state(struct arche_platform_drvdata *arche_pdata,
++						 enum svc_wakedetect_state state)
+ {
+ 	arche_pdata->wake_detect_state = state;
+ }
+@@ -179,11 +178,9 @@ static irqreturn_t arche_platform_wd_irq(int irq, void *devid)
+ 				 */
+ 				if (arche_pdata->wake_detect_state !=
+ 						WD_STATE_COLDBOOT_START) {
+-					arche_platform_set_wake_detect_state(arche_pdata,
+-									     WD_STATE_COLDBOOT_TRIG);
+-					spin_unlock_irqrestore(
+-						&arche_pdata->wake_lock,
+-						flags);
++						arche_platform_set_wake_detect_state(arche_pdata, WD_STATE_COLDBOOT_TRIG);
++						spin_unlock_irqrestore(&arche_pdata->wake_lock,
++								       flags);
+ 					return IRQ_WAKE_THREAD;
+ 				}
+ 			}
+diff --git a/drivers/staging/greybus/audio_codec.c b/drivers/staging/greybus/audio_codec.c
+index 08746c85dea6d..d62f91f4e9a2a 100644
+--- a/drivers/staging/greybus/audio_codec.c
++++ b/drivers/staging/greybus/audio_codec.c
+@@ -70,7 +70,7 @@ static int gbaudio_module_enable_tx(struct gbaudio_codec_info *codec,
+ 		i2s_port = 0;	/* fixed for now */
+ 		cportid = data->connection->hd_cport_id;
+ 		ret = gb_audio_apbridgea_register_cport(data->connection,
+-						i2s_port, cportid,
++							i2s_port, cportid,
+ 						AUDIO_APBRIDGEA_DIRECTION_TX);
+ 		if (ret) {
+ 			dev_err_ratelimited(module->dev,
+@@ -160,7 +160,7 @@ static int gbaudio_module_disable_tx(struct gbaudio_module_info *module, int id)
+ 		i2s_port = 0;	/* fixed for now */
+ 		cportid = data->connection->hd_cport_id;
+ 		ret = gb_audio_apbridgea_unregister_cport(data->connection,
+-						i2s_port, cportid,
++							  i2s_port, cportid,
+ 						AUDIO_APBRIDGEA_DIRECTION_TX);
+ 		if (ret) {
+ 			dev_err_ratelimited(module->dev,
+@@ -205,7 +205,7 @@ static int gbaudio_module_enable_rx(struct gbaudio_codec_info *codec,
+ 		i2s_port = 0;	/* fixed for now */
+ 		cportid = data->connection->hd_cport_id;
+ 		ret = gb_audio_apbridgea_register_cport(data->connection,
+-						i2s_port, cportid,
++							i2s_port, cportid,
+ 						AUDIO_APBRIDGEA_DIRECTION_RX);
+ 		if (ret) {
+ 			dev_err_ratelimited(module->dev,
+@@ -295,7 +295,7 @@ static int gbaudio_module_disable_rx(struct gbaudio_module_info *module, int id)
+ 		i2s_port = 0;	/* fixed for now */
+ 		cportid = data->connection->hd_cport_id;
+ 		ret = gb_audio_apbridgea_unregister_cport(data->connection,
+-						i2s_port, cportid,
++							  i2s_port, cportid,
+ 						AUDIO_APBRIDGEA_DIRECTION_RX);
+ 		if (ret) {
+ 			dev_err_ratelimited(module->dev,
+diff --git a/drivers/staging/greybus/audio_manager_module.c b/drivers/staging/greybus/audio_manager_module.c
+index 2bfd804183c4f..578bda8304367 100644
+--- a/drivers/staging/greybus/audio_manager_module.c
++++ b/drivers/staging/greybus/audio_manager_module.c
+@@ -70,9 +70,8 @@ static void gb_audio_module_release(struct kobject *kobj)
+ 	kfree(module);
+ }
+ 
+-static ssize_t gb_audio_module_name_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_name_show(struct gb_audio_manager_module *module,
++					 struct gb_audio_manager_module_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%s", module->desc.name);
+ }
+@@ -80,9 +79,8 @@ static ssize_t gb_audio_module_name_show(
+ static struct gb_audio_manager_module_attribute gb_audio_module_name_attribute =
+ 	__ATTR(name, 0664, gb_audio_module_name_show, NULL);
+ 
+-static ssize_t gb_audio_module_vid_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_vid_show(struct gb_audio_manager_module *module,
++					struct gb_audio_manager_module_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%d", module->desc.vid);
+ }
+@@ -90,9 +88,8 @@ static ssize_t gb_audio_module_vid_show(
+ static struct gb_audio_manager_module_attribute gb_audio_module_vid_attribute =
+ 	__ATTR(vid, 0664, gb_audio_module_vid_show, NULL);
+ 
+-static ssize_t gb_audio_module_pid_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_pid_show(struct gb_audio_manager_module *module,
++					struct gb_audio_manager_module_attribute *attr, char *buf)
+ {
+ 	return sprintf(buf, "%d", module->desc.pid);
+ }
+@@ -100,9 +97,9 @@ static ssize_t gb_audio_module_pid_show(
+ static struct gb_audio_manager_module_attribute gb_audio_module_pid_attribute =
+ 	__ATTR(pid, 0664, gb_audio_module_pid_show, NULL);
+ 
+-static ssize_t gb_audio_module_intf_id_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_intf_id_show(struct gb_audio_manager_module *module,
++					    struct gb_audio_manager_module_attribute *attr,
++						char *buf)
+ {
+ 	return sprintf(buf, "%d", module->desc.intf_id);
+ }
+@@ -111,9 +108,9 @@ static struct gb_audio_manager_module_attribute
+ 					gb_audio_module_intf_id_attribute =
+ 	__ATTR(intf_id, 0664, gb_audio_module_intf_id_show, NULL);
+ 
+-static ssize_t gb_audio_module_ip_devices_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_ip_devices_show(struct gb_audio_manager_module *module,
++					       struct gb_audio_manager_module_attribute *attr,
++						   char *buf)
+ {
+ 	return sprintf(buf, "0x%X", module->desc.ip_devices);
+ }
+@@ -122,9 +119,9 @@ static struct gb_audio_manager_module_attribute
+ 					gb_audio_module_ip_devices_attribute =
+ 	__ATTR(ip_devices, 0664, gb_audio_module_ip_devices_show, NULL);
+ 
+-static ssize_t gb_audio_module_op_devices_show(
+-	struct gb_audio_manager_module *module,
+-	struct gb_audio_manager_module_attribute *attr, char *buf)
++static ssize_t gb_audio_module_op_devices_show(struct gb_audio_manager_module *module,
++					       struct gb_audio_manager_module_attribute *attr,
++						   char *buf)
+ {
+ 	return sprintf(buf, "0x%X", module->desc.op_devices);
+ }
+@@ -180,9 +177,8 @@ static void send_add_uevent(struct gb_audio_manager_module *module)
+ 	kobject_uevent_env(&module->kobj, KOBJ_ADD, envp);
+ }
+ 
+-int gb_audio_manager_module_create(
+-	struct gb_audio_manager_module **module,
+-	struct kset *manager_kset,
++int gb_audio_manager_module_create(struct gb_audio_manager_module **module,
++				   struct kset *manager_kset,
+ 	int id, struct gb_audio_manager_module_descriptor *desc)
+ {
+ 	int err;
+diff --git a/drivers/staging/greybus/audio_manager_private.h b/drivers/staging/greybus/audio_manager_private.h
+index 2b3a766c7de72..a1cd92e26521b 100644
+--- a/drivers/staging/greybus/audio_manager_private.h
++++ b/drivers/staging/greybus/audio_manager_private.h
+@@ -12,10 +12,9 @@
+ 
+ #include "audio_manager.h"
+ 
+-int gb_audio_manager_module_create(
+-	struct gb_audio_manager_module **module,
+-	struct kset *manager_kset,
+-	int id, struct gb_audio_manager_module_descriptor *desc);
++int gb_audio_manager_module_create(struct gb_audio_manager_module **module,
++				   struct kset *manager_kset, int id,
++	struct gb_audio_manager_module_descriptor *desc);
+ 
+ /* module destroyed via kobject_put */
+ 
+diff --git a/drivers/staging/greybus/audio_manager_sysfs.c b/drivers/staging/greybus/audio_manager_sysfs.c
+index ab882cc49b411..2fd7673cdb1f9 100644
+--- a/drivers/staging/greybus/audio_manager_sysfs.c
++++ b/drivers/staging/greybus/audio_manager_sysfs.c
+@@ -18,8 +18,8 @@ static ssize_t manager_sysfs_add_store(struct kobject *kobj,
+ 	struct gb_audio_manager_module_descriptor desc = { {0} };
+ 
+ 	int num = sscanf(buf,
+-			"name=%" GB_AUDIO_MANAGER_MODULE_NAME_LEN_SSCANF "s "
+-			"vid=%d pid=%d intf_id=%d i/p devices=0x%X o/p devices=0x%X",
++			"name=%" GB_AUDIO_MANAGER_MODULE_NAME_LEN_SSCANF "s
++			vid=%d pid=%d intf_id=%d i/p devices=0x%X o/p devices=0x%X",
+ 			desc.name, &desc.vid, &desc.pid, &desc.intf_id,
+ 			&desc.ip_devices, &desc.op_devices);
+ 
+diff --git a/drivers/staging/greybus/audio_module.c b/drivers/staging/greybus/audio_module.c
+index 300a2b4f3fc78..0e8847a9bdbaf 100644
+--- a/drivers/staging/greybus/audio_module.c
++++ b/drivers/staging/greybus/audio_module.c
+@@ -175,7 +175,7 @@ static int gbaudio_codec_request_handler(struct gb_operation *op)
+ }
+ 
+ static int gb_audio_add_mgmt_connection(struct gbaudio_module_info *gbmodule,
+-				struct greybus_descriptor_cport *cport_desc,
++					struct greybus_descriptor_cport *cport_desc,
+ 				struct gb_bundle *bundle)
+ {
+ 	struct gb_connection *connection;
+@@ -199,7 +199,7 @@ static int gb_audio_add_mgmt_connection(struct gbaudio_module_info *gbmodule,
+ }
+ 
+ static int gb_audio_add_data_connection(struct gbaudio_module_info *gbmodule,
+-				struct greybus_descriptor_cport *cport_desc,
++					struct greybus_descriptor_cport *cport_desc,
+ 				struct gb_bundle *bundle)
+ {
+ 	struct gb_connection *connection;
+diff --git a/drivers/staging/greybus/audio_topology.c b/drivers/staging/greybus/audio_topology.c
+index 4ac30accf226a..5caad349064c9 100644
+--- a/drivers/staging/greybus/audio_topology.c
++++ b/drivers/staging/greybus/audio_topology.c
+@@ -24,9 +24,8 @@ struct gbaudio_ctl_pvt {
+ 	struct gb_audio_ctl_elem_info *info;
+ };
+ 
+-static struct gbaudio_module_info *find_gb_module(
+-					struct gbaudio_codec_info *codec,
+-					char const *name)
++static struct gbaudio_module_info *find_gb_module(struct gbaudio_codec_info *codec,
++						  char const *name)
+ {
+ 	int dev_id, ret;
+ 	char begin[NAME_SIZE];
+diff --git a/drivers/staging/greybus/camera.c b/drivers/staging/greybus/camera.c
+index b570e13394ac3..924d7b04006a9 100644
+--- a/drivers/staging/greybus/camera.c
++++ b/drivers/staging/greybus/camera.c
+@@ -180,9 +180,9 @@ static const struct gb_camera_fmt_info *gb_camera_get_format_info(u16 gb_fmt)
+ 
+ #define GB_CAMERA_MAX_SETTINGS_SIZE	8192
+ 
+-#define gcam_dbg(gcam, format...)	dev_dbg(&gcam->bundle->dev, format)
+-#define gcam_info(gcam, format...)	dev_info(&gcam->bundle->dev, format)
+-#define gcam_err(gcam, format...)	dev_err(&gcam->bundle->dev, format)
++#define gcam_dbg((gcam), format...)	dev_dbg(&gcam->bundle->dev, format)
++#define gcam_info((gcam), format...)	dev_info(&gcam->bundle->dev, format)
++#define gcam_err((gcam), format...)	dev_err(&gcam->bundle->dev, format)
+ 
+ static int gb_camera_operation_sync_flags(struct gb_connection *connection,
+ 					  int type, unsigned int flags,
+@@ -220,7 +220,7 @@ static int gb_camera_operation_sync_flags(struct gb_connection *connection,
+ }
+ 
+ static int gb_camera_get_max_pkt_size(struct gb_camera *gcam,
+-		struct gb_camera_configure_streams_response *resp)
++				      struct gb_camera_configure_streams_response *resp)
+ {
+ 	unsigned int max_pkt_size = 0;
+ 	unsigned int i;
+@@ -267,10 +267,8 @@ static int gb_camera_get_max_pkt_size(struct gb_camera *gcam,
+  * Validate the stream configuration response verifying padding is correctly
+  * set and the returned number of streams is supported
+  */
+-static const int gb_camera_configure_streams_validate_response(
+-		struct gb_camera *gcam,
+-		struct gb_camera_configure_streams_response *resp,
+-		unsigned int nstreams)
++static const int gb_camera_configure_streams_validate_response(struct gb_camera *gcam,
++		struct gb_camera_configure_streams_response *resp,unsigned int nstreams)
+ {
+ 	unsigned int i;
+ 
+@@ -378,7 +376,7 @@ struct ap_csi_config_request {
+ #define GB_CAMERA_CSI_CLK_FREQ_MARGIN		150000000U
+ 
+ static int gb_camera_setup_data_connection(struct gb_camera *gcam,
+-		struct gb_camera_configure_streams_response *resp,
++					   struct gb_camera_configure_streams_response *resp,
+ 		struct gb_camera_csi_params *csi_params)
+ {
+ 	struct ap_csi_config_request csi_cfg;
+@@ -783,7 +781,7 @@ static ssize_t gb_camera_op_capabilities(void *priv, char *data, size_t len)
+ }
+ 
+ static int gb_camera_op_configure_streams(void *priv, unsigned int *nstreams,
+-		unsigned int *flags, struct gb_camera_stream *streams,
++					  unsigned int *flags, struct gb_camera_stream *streams,
+ 		struct gb_camera_csi_params *csi_params)
+ {
+ 	struct gb_camera *gcam = priv;
+diff --git a/init/main.c b/init/main.c
+index 0ead83e86b5aa..79fd147536d10 100644
+--- a/init/main.c
++++ b/init/main.c
+@@ -1413,6 +1413,7 @@ static int __ref kernel_init(void *unused)
+ 	numa_default_policy();
+ 
+ 	rcu_end_inkernel_boot();
++	printk(KERN_ERR "########################################\nMC504\n########################################\n");
+ 
+ 	do_sysctl_args();
+ 
