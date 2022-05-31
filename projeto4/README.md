@@ -6,7 +6,11 @@ Neste projeto tivemos um primeiro contato com o codigo do kernel linux. Para iss
 - [Compilando o Kernel](https://docs.lkcamp.dev/unicamp_group/boot/)
 - [Primeira contribuicao](https://docs.lkcamp.dev/unicamp_group/first_contrib/)
 
-O resultado das modificacoes pode ser encontrado no arquivo [patchfile](./patchfile)
+o resultado pode ser visto no [video](https://drive.google.com/drive/folders/1HAcAYyEKX7WC0fDqKnuXUf25_Bzo5mNI?usp=sharing)
+
+O resultado das modificacoes pode ser encontrado no arquivo [patch](./patches/0001-fixing-precendence-issue-in-gcam-argument.patch)
+
+Alem disso tambem fizemos algumas modificacoes extras que podem ser vistas no arquivo [patch](./patches/patchfile.patch)
 
 OBS: vale ressaltar que durante a instalacao do virtme tivemos algumas dificuldades com a criacao da maquina. Alem disso tbm  tivemos dificuldades para a compilacao do kernel inicialmente. Os recursos que nos ajudaram foram a lista de dependencias:
 
