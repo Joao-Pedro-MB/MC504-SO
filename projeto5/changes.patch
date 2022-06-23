@@ -1,0 +1,148 @@
+From 8540219f65740a27e15aa042b95ec0a34b8c8d87 Mon Sep 17 00:00:00 2001
+From: Joao-Pedro-MB <joaopedreobonucci@gmail.com>
+Date: Thu, 23 Jun 2022 12:12:20 +0000
+Subject: [PATCH] my commit
+
+---
+ arch/x86/entry/syscalls/syscall_64.tbl |  2 ++
+ include/linux/syscalls.h               |  3 +++
+ include/uapi/asm-generic/unistd.h      |  6 +++++-
+ kernel/Makefile                        |  2 +-
+ kernel/getuserweight.c                 | 21 +++++++++++++++++++++
+ kernel/setuserweight.c                 | 21 +++++++++++++++++++++
+ kernel/sys_ni.c                        |  2 ++
+ 7 files changed, 55 insertions(+), 2 deletions(-)
+ create mode 100644 kernel/getuserweight.c
+ create mode 100644 kernel/setuserweight.c
+
+diff --git a/arch/x86/entry/syscalls/syscall_64.tbl b/arch/x86/entry/syscalls/syscall_64.tbl
+index 78847b32e137..e92354c34d2c 100644
+--- a/arch/x86/entry/syscalls/syscall_64.tbl
++++ b/arch/x86/entry/syscalls/syscall_64.tbl
+@@ -360,6 +360,8 @@
+ 437	common	openat2			sys_openat2
+ 438	common	pidfd_getfd		sys_pidfd_getfd
+ 439	common	faccessat2		sys_faccessat2
++440 common  setuserweight   sys_setuserweight
++441 common  getuserweight   sys_getuserweight
+ 
+ #
+ # x32-specific system call numbers start at 512 to avoid cache impact
+diff --git a/include/linux/syscalls.h b/include/linux/syscalls.h
+index 7c354c2955f5..a041a9036f24 100644
+--- a/include/linux/syscalls.h
++++ b/include/linux/syscalls.h
+@@ -1220,6 +1220,9 @@ asmlinkage long sys_mmap_pgoff(unsigned long addr, unsigned long len,
+ 			unsigned long fd, unsigned long pgoff);
+ asmlinkage long sys_old_mmap(struct mmap_arg_struct __user *arg);
+ 
++asmlinkage long sys_setuserweight(int __user uid, int __user weight);
++asmlinkage long sys_getuserweight(int __user uid);
++
+ 
+ /*
+  * Not a real system call, but a placeholder for syscalls which are
+diff --git a/include/uapi/asm-generic/unistd.h b/include/uapi/asm-generic/unistd.h
+index f4a01305d9a6..5f44ad44c50a 100644
+--- a/include/uapi/asm-generic/unistd.h
++++ b/include/uapi/asm-generic/unistd.h
+@@ -857,9 +857,13 @@ __SYSCALL(__NR_openat2, sys_openat2)
+ __SYSCALL(__NR_pidfd_getfd, sys_pidfd_getfd)
+ #define __NR_faccessat2 439
+ __SYSCALL(__NR_faccessat2, sys_faccessat2)
++#define __NR_setuserweight 440
++__SYSCALL(__NR_setuserweight, sys_setuserweight)
++#define __NR_getuserweight 441
++__SYSCALL(__NR_getuserweight, sys_getuserweight)
+ 
+ #undef __NR_syscalls
+-#define __NR_syscalls 440
++#define __NR_syscalls 442
+ 
+ /*
+  * 32 bit systems traditionally used different
+diff --git a/kernel/Makefile b/kernel/Makefile
+index f3218bc5ec69..a8a7d0f924bb 100644
+--- a/kernel/Makefile
++++ b/kernel/Makefile
+@@ -10,7 +10,7 @@ obj-y     = fork.o exec_domain.o panic.o \
+ 	    extable.o params.o \
+ 	    kthread.o sys_ni.o nsproxy.o \
+ 	    notifier.o ksysfs.o cred.o reboot.o \
+-	    async.o range.o smpboot.o ucount.o
++	    async.o range.o smpboot.o ucount.o setuserweight.o getuserweight.o
+ 
+ obj-$(CONFIG_MODULES) += kmod.o
+ obj-$(CONFIG_MULTIUSER) += groups.o
+diff --git a/kernel/getuserweight.c b/kernel/getuserweight.c
+new file mode 100644
+index 000000000000..09536a16f256
+--- /dev/null
++++ b/kernel/getuserweight.c
+@@ -0,0 +1,21 @@
++/*
++    getuserweight() should return the weight of the specified user, or -1 on error.
++
++    The default user weight should be 10.
++
++    setuserweight() should give the specified user the specified weight, and return 0, or -1 on error.
++
++    For either call, a uid value of -1 indicates the current user (that is, the owner of the task that is making the system call). Otherwise, the range of valid uids is 0-65535. A bad uid should result in a return value of -1 and errno set to EINVAL.
++
++    Only root is allowed to call setuserweight(); a call by any other user should return -1 and set errno to EACCES.
++
++    Also, a user’s weight must be greater than zero. Any attempt to set a bad weight is an error, and errno should be set to EINVAL.
++
++*/
++
++#include <linux/syscalls.h>
++
++SYSCALL_DEFINE1(getuserweight, int __user, uid)
++{
++    return 0;
++}
+\ No newline at end of file
+diff --git a/kernel/setuserweight.c b/kernel/setuserweight.c
+new file mode 100644
+index 000000000000..0b7a3e5751dd
+--- /dev/null
++++ b/kernel/setuserweight.c
+@@ -0,0 +1,21 @@
++/*
++    getuserweight() should return the weight of the specified user, or -1 on error.
++
++    The default user weight should be 10.
++
++    setuserweight() should give the specified user the specified weight, and return 0, or -1 on error.
++
++    For either call, a uid value of -1 indicates the current user (that is, the owner of the task that is making the system call). Otherwise, the range of valid uids is 0-65535. A bad uid should result in a return value of -1 and errno set to EINVAL.
++
++    Only root is allowed to call setuserweight(); a call by any other user should return -1 and set errno to EACCES.
++
++    Also, a user’s weight must be greater than zero. Any attempt to set a bad weight is an error, and errno should be set to EINVAL.
++
++*/
++
++#include <linux/syscalls.h>
++
++SYSCALL_DEFINE2(setuserweight, int __user, uid, int __user, weight)
++{
++    return 0;
++}
+\ No newline at end of file
+diff --git a/kernel/sys_ni.c b/kernel/sys_ni.c
+index 3b69a560a7ac..0a2f29a40588 100644
+--- a/kernel/sys_ni.c
++++ b/kernel/sys_ni.c
+@@ -265,6 +265,8 @@ COND_SYSCALL(keyctl);
+ COND_SYSCALL_COMPAT(keyctl);
+ 
+ /* arch/example/kernel/sys_example.c */
++COND_SYSCALL(setuserweight);
++COND_SYSCALL(getuserweight);
+ 
+ /* mm/fadvise.c */
+ COND_SYSCALL(fadvise64_64);
+-- 
+2.25.1
+
