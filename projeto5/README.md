@@ -1,5 +1,5 @@
 
-# Project 4 - Patch the linux
+# Project 5 - Novas chamadas de sistema
 
 ## Introdução
 O objetivo desse projeto foir realizar a adicao de duas chamadas de sistema no kernel linux (getuserweight e setuserweight). Para isso foi preciso enteder algumas chamadas e conceitos nao triviais do sistema alem de enteder a funcionalidade de outras funcoes definidas no proprio kernel.
