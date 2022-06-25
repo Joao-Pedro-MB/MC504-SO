@@ -6,7 +6,7 @@ Neste projeto tivemos um primeiro contato com o codigo do kernel linux. Para iss
 - [Compilando o Kernel](https://docs.lkcamp.dev/unicamp_group/boot/)
 - [Primeira contribuicao](https://docs.lkcamp.dev/unicamp_group/first_contrib/)
 
-o resultado pode ser visto no [video](https://drive.google.com/drive/folders/1HAcAYyEKX7WC0fDqKnuXUf25_Bzo5mNI?usp=sharing)
+o resultado pode ser visto no [video](https://drive.google.com/drive/folders/1oD-WFWgC7LmLZpAiVPREkj56SwZHZ2sQ?usp=sharing)
 
 O resultado das modificacoes pode ser encontrado no arquivo [patch](./patches/0001-fixing-precendence-issue-in-gcam-argument.patch)
 
