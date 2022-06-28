@@ -30,7 +30,7 @@ Para aplicar as modificacoes, basta utilizar o arquivo .patch neste mesmo reposi
 
 ## Explicacao
 
-Para um explicacao de tudo que foi feito basta clicar nesse [video](#)
+Para um explicacao de tudo que foi feito basta clicar nesse [video](https://drive.google.com/file/d/15oCGbKrOKHzmuHuTuFkcbxbtNpc4ioLq/view?usp=sharing)
 
 ## Reproducao
 
